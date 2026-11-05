@@ -1,5 +1,7 @@
 # Results and reproduction status
 
+See [REPORT.md](REPORT.md) for figures, training loss, and manuscript wording for the historical forecast results.
+
 The ARDC abstract reports the figures below. The attached manuscript gives the abstract without the experiment artifacts needed to reconstruct those figures.
 
 | Reported claim | What this repo measures | Evidence needed to verify the claim |

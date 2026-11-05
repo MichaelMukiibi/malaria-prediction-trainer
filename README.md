@@ -24,6 +24,17 @@ Install the optional dependency to evaluate Isolation Forest on event features.
 
 Choose a fresh output directory for every run. Open its `metrics.json` to see the configuration, input manifest hash, environment, and metrics. Diagnostics, forecast, and follow-up also save NumPy weights.
 
+## Plot run results
+
+Install `requirements-plots.txt` in the same environment as the trainer. Add `--plot` to any training command to save `charts.png` and `charts.svg` alongside `metrics.json`. To render or retitle an existing run, use:
+
+```powershell
+python -m pip install -r requirements-plots.txt
+python plot_run.py runs/pangaea-h1/metrics.json --title "Uganda district anomalies | One-month forecast"
+```
+
+New diagnostic and follow-up runs record training loss, even when plotting is disabled. Older runs need to be rerun to recover a loss curve. Forecast and security figures show holdout metrics. See [REPORT.md](REPORT.md) for the charts and paper-ready results.
+
 ## Use research data
 
 ### Uganda district anomaly forecasts
