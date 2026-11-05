@@ -35,7 +35,7 @@ New-Item -ItemType Directory -Force data | Out-Null
 curl.exe --fail --location --output data/pangaea.zip https://store.pangaea.de/Publications/Tompkins-etal_2019/vectri_monthly_calibrated_timeseries_allyears_UGA_lneir_allLeads_repo.zip
 foreach ($horizon in 1, 4) {
     python prepare_pangaea.py --archive data/pangaea.zip --horizon $horizon --out "data/pangaea-h$horizon"
-    python trainer.py forecast --input "data/pangaea-h$horizon/forecast.csv" --features prior_anomaly year_ago_anomaly --out "runs/pangaea-h$horizon"
+    python trainer.py forecast --input "data/pangaea-h$horizon/forecast.csv" --features prior_anomaly year_ago_anomaly --persistence-feature prior_anomaly --out "runs/pangaea-h$horizon"
 }
 ```
 

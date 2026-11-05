@@ -28,12 +28,12 @@ Windows CPU, Python 3.14.4, NumPy 2.5.4, and Pillow 13.0.0. The generated images
 
 Windows CPU, Python 3.14.4 and NumPy 2.5.4. Source: [Tompkins et al. (2019), PANGAEA supplement 2](https://doi.pangaea.de/10.1594/PANGAEA.897624), CC BY 4.0. The archive contains published monthly case anomalies for 56 districts. Observations repeat across ensemble leads, so preparation selects a single copy and uses only the previous month's and year-ago anomalies relative to the forecast date. Training outcomes precede January 2009, and test forecast dates begin in January 2009. Rows that cross the cutoff are omitted.
 
-| Horizon | Train rows | Test rows | Ridge MAE | Ridge RMSE | Training mean MAE | Training mean RMSE |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 month | 2,016 | 1,288 | 0.383 | 0.516 | 0.976 | 1.152 |
-| 4 months | 1,848 | 1,120 | 0.719 | 0.905 | 0.991 | 1.169 |
+| Horizon | Train rows | Test rows | Ridge MAE / RMSE | Persistence MAE / RMSE | Training mean MAE / RMSE |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1 month | 2,016 | 1,288 | 0.383 / 0.516 | 0.391 / 0.538 | 0.976 / 1.152 |
+| 4 months | 1,848 | 1,120 | 0.719 / 0.905 | 0.783 / 1.006 | 0.991 / 1.169 |
 
-Errors are in the archive's published anomaly units. This is a retrospective baseline on the publisher's normalized series, which assumes prior observations were available at the forecast date. The archive provides no time-stamped releases or official outbreak labels, and the split evaluates later periods in districts seen during training.
+Persistence predicts the last observed anomaly for that district. Errors are in the archive's published anomaly units. This is a retrospective baseline on the publisher's normalized series, which assumes prior observations were available at the forecast date. The archive provides no time-stamped releases or official outbreak labels, and the split evaluates later periods in districts seen during training.
 
 | Other source | Status |
 | --- | --- |
