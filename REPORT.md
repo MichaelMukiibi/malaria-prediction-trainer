@@ -1,5 +1,29 @@
 # Malaria forecasting and trainer evaluation
 
+## Exploratory data analysis
+
+The PANGAEA archive contains 4,088 distinct district-months across 56 Ugandan districts, with no missing months in the December 2004 to December 2010 panel. The pooled median anomaly was 0.147 before January 2009 and −0.327 from the cutoff onward. The series is useful for a temporal holdout because the observed anomaly distribution changes over time. [PANGAEA source and attribution](https://doi.pangaea.de/10.1594/PANGAEA.897624)
+
+![Monthly Uganda anomaly median, interquartile range, and evaluation cutoff](report/eda/pangaea-timeline.png)
+
+*Figure E1. Monthly median and interquartile range across districts. The dashed line marks January 2009.*
+
+![Pre-cutoff same-district lag correlations](report/eda/pangaea-lags.png)
+
+*Figure E4. Before the cutoff, same-district anomaly correlation was 0.871 at two months and 0.593 at five months. These are the target-relative gaps for the persistence comparator at the one- and four-month forecast horizons.*
+
+The Makerere archive contains 1,182 microscope images from one hospital. Of these, 948 had parasite annotations and 234 had no labeled parasite. The archive lacks verified slide and patient identifiers, so this analysis reports image counts and annotation quality. [Makerere phone-camera archive](https://air.ug/downloads/plasmodium-phonecamera.zip)
+
+![Makerere image labels and counts of parasite boxes per annotated image](report/eda/makerere-labels.png)
+
+*Figure E5. Annotated images had a median of eight parasite boxes. Counts describe archive images and annotations.*
+
+![Makerere box dimensions and image brightness by annotation category](report/eda/makerere-quality.png)
+
+*Figure E6. Of 7,628 boxes, 408 extended beyond an image edge. The brightness distributions overlap, with medians of 146.8 for annotated images and 150.4 for images without a parasite annotation.*
+
+See [EDA.md](EDA.md) for the district heatmap, distribution plots, methods, and reproduction commands.
+
 ## Main result: historical Uganda forecasts
 
 We evaluated one- and four-month forecasts of monthly malaria case anomalies in 56 Ugandan districts. The ridge model used the previous month's and year-ago anomalies relative to each forecast date. Training outcomes preceded January 2009. Test forecast dates began in January 2009, and rows whose training outcomes would have crossed the cutoff were omitted. Persistence predicted the most recent anomaly available in the input, and the training mean provided a constant baseline. [PANGAEA source and attribution](https://doi.pangaea.de/10.1594/PANGAEA.897624)
