@@ -1,6 +1,6 @@
 # Contributing
 
-Start work from `main`. Use these branch families.
+Start work from an up-to-date `dev`. Commit on a topic branch, merge it into `dev` after checks pass, and push `dev` to `origin` with `git push origin dev`. Never commit directly to `main`. Use a pull request from `dev` to `main` for releases.
 
 | Branch prefix | Use |
 | --- | --- |
