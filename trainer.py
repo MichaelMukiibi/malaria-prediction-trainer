@@ -70,15 +70,24 @@ def logits(x, weights):
     return x @ weights[:-1] + weights[-1]
 
 
-def update(weights, x, y, steps, rate):
+def binary_cross_entropy(scores, y):
+    return float(np.logaddexp(0, np.where(y == 1, -scores, scores)).mean())
+
+
+def update(weights, x, y, steps, rate, history=None):
     weights = weights.copy()
     for _ in range(steps):
-        probability = 1 / (1 + np.exp(-np.clip(logits(x, weights), -40, 40)))
+        scores = logits(x, weights)
+        if history is not None:
+            history.append(binary_cross_entropy(scores, y))
+        probability = 1 / (1 + np.exp(-np.clip(scores, -40, 40)))
         error = probability - y
         weights[:-1] -= rate * (x.T @ error / len(y) + 0.01 * weights[:-1])
         weights[-1] -= rate * error.mean()
         if not np.isfinite(weights).all():
             raise ValueError("Training diverged. Check feature ranges and lower --rate.")
+    if history is not None:
+        history.append(binary_cross_entropy(logits(x, weights), y))
     return weights
 
 
@@ -100,15 +109,18 @@ def diagnostics(args, rows):
         raise ValueError("Use at least two named training clients")
     masks = [clients == client for client in sorted(set(clients))]
     initial = np.zeros(x.shape[1] + 1)
-    central = update(initial, x, y, args.steps * args.rounds, args.rate)
-    local = [update(initial, x[mask], y[mask], args.steps * args.rounds, args.rate)
-             for mask in masks]
+    pooled_loss, local_loss = [], [[] for _ in masks]
+    central = update(initial, x, y, args.steps * args.rounds, args.rate, pooled_loss)
+    local = [update(initial, x[mask], y[mask], args.steps * args.rounds, args.rate, history)
+             for mask, history in zip(masks, local_loss)]
     federated = initial
+    federated_loss = [binary_cross_entropy(logits(x, federated), y)]
     counts = [int(mask.sum()) for mask in masks]
     for _ in range(args.rounds):
         federated = np.average(
             [update(federated, x[mask], y[mask], args.steps, args.rate)
              for mask in masks], axis=0, weights=counts)
+        federated_loss.append(binary_cross_entropy(logits(x, federated), y))
 
     elapsed, predictions, failures = [], [], 0
     for row in test:
@@ -124,6 +136,13 @@ def diagnostics(args, rows):
 
     metrics = {
         "train_images": len(train), "test_images": len(test), "client_sizes": counts,
+        "training_loss": {
+            "metric": "binary_cross_entropy",
+            "pooled": pooled_loss,
+            "local_weighted": np.average(local_loss, axis=0, weights=counts).tolist(),
+            "federated": federated_loss,
+            "federated_steps": [round_id * args.steps for round_id in range(args.rounds + 1)],
+        },
         "desktop": {
             "attempted": len(test), "completed": len(predictions), "failed": failures,
             "completion_fraction": len(predictions) / len(test),
@@ -197,9 +216,11 @@ def tabular(args, rows):
         y, truth = labels(train, "target"), labels(test, "target")
         if len(set(y)) < 2 or len(set(truth)) < 2:
             raise ValueError("Both splits must contain both follow-up outcomes")
-        weights = update(np.zeros(x.shape[1] + 1), x, y, args.steps, args.rate)
+        history = []
+        weights = update(np.zeros(x.shape[1] + 1), x, y, args.steps, args.rate, history)
         metrics.update(model=classification(truth, logits(held_out, weights) >= 0),
-                       baseline=classification(truth, np.full(len(truth), y.mean() >= 0.5)))
+                       baseline=classification(truth, np.full(len(truth), y.mean() >= 0.5)),
+                       training_loss={"metric": "binary_cross_entropy", "model": history})
     else:
         y, truth = matrix(train, ["target"]).ravel(), matrix(test, ["target"]).ravel()
         weights = np.r_[np.linalg.solve(x.T @ x + np.eye(x.shape[1]), x.T @ (y - y.mean())),
@@ -226,6 +247,7 @@ def main():
     parser.add_argument("--steps", type=int, default=10)
     parser.add_argument("--rate", type=float, default=0.05)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--plot", action="store_true", help="Save PNG and SVG charts with metrics")
     parser.add_argument("--contamination", type=float, default=0.01)
     args = parser.parse_args()
     if args.persistence_feature and (args.mode != "forecast" or
@@ -237,6 +259,11 @@ def main():
         parser.error("Contamination must be in (0, 0.5]")
     if args.out.exists():
         parser.error("Choose a new run directory")
+    if args.plot:
+        try:
+            from plot_run import render
+        except ImportError as exc:
+            parser.error(f"Install requirements-plots.txt to use --plot ({exc})")
     try:
         rows = read_rows(args.input)
         run = {"diagnostics": diagnostics, "security": security}.get(args.mode, tabular)
@@ -259,6 +286,8 @@ def main():
     (args.out / "metrics.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n",
                                            encoding="utf-8")
     print(args.out / "metrics.json")
+    if args.plot:
+        render(report, args.out)
     return int(metrics.get("desktop", {}).get("failed", 0) > 0)
 
 
