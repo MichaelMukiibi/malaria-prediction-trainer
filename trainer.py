@@ -184,6 +184,8 @@ def tabular(args, rows):
     if {"split", "group", "as_of", "outcome_date", "target"} & set(args.features):
         raise ValueError("Target and split metadata cannot be features")
     x, held_out = matrix(train, args.features), matrix(test, args.features)
+    persistence = (held_out[:, args.features.index(args.persistence_feature)]
+                   if args.persistence_feature else None)
     center = x.mean(axis=0)
     spread = x.std(axis=0)
     spread[spread == 0] = 1
@@ -202,8 +204,11 @@ def tabular(args, rows):
         y, truth = matrix(train, ["target"]).ravel(), matrix(test, ["target"]).ravel()
         weights = np.r_[np.linalg.solve(x.T @ x + np.eye(x.shape[1]), x.T @ (y - y.mean())),
                         y.mean()]
-        for name, predicted in (("ridge", logits(held_out, weights)),
-                                ("train_mean", np.full(len(truth), y.mean()))):
+        forecasts = {"ridge": logits(held_out, weights),
+                     "train_mean": np.full(len(truth), y.mean())}
+        if persistence is not None:
+            forecasts["persistence"] = persistence
+        for name, predicted in forecasts.items():
             error = truth - predicted
             metrics[name] = dict(mae=float(np.abs(error).mean()),
                                  rmse=float(np.sqrt(np.mean(error ** 2))))
@@ -216,12 +221,16 @@ def main():
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--features", nargs="+", default=[])
+    parser.add_argument("--persistence-feature", help="Forecast feature in target units to use as-is")
     parser.add_argument("--rounds", type=int, default=10)
     parser.add_argument("--steps", type=int, default=10)
     parser.add_argument("--rate", type=float, default=0.05)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--contamination", type=float, default=0.01)
     args = parser.parse_args()
+    if args.persistence_feature and (args.mode != "forecast" or
+                                     args.persistence_feature not in args.features):
+        parser.error("--persistence-feature must name a selected forecast feature")
     if args.steps < 1 or args.rounds < 1 or not np.isfinite(args.rate) or args.rate <= 0:
         parser.error("Steps, rounds and learning rate must be positive")
     if not 0 < args.contamination <= 0.5:
