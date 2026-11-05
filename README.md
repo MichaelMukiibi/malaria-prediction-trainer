@@ -26,6 +26,8 @@ Choose a fresh output directory for every run. Open its `metrics.json` to see th
 
 ## Plot run results
 
+See [EDA.md](EDA.md) for the six exploratory figures and instructions to regenerate them from the local PANGAEA and Makerere archives.
+
 Install `requirements-plots.txt` in the same environment as the trainer. Add `--plot` to any training command to save `charts.png` and `charts.svg` alongside `metrics.json`. To render or retitle an existing run, use:
 
 ```powershell
