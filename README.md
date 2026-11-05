@@ -26,6 +26,23 @@ Choose a fresh output directory for every run. Open its `metrics.json` to see th
 
 ## Use research data
 
+### Uganda district anomaly forecasts
+
+Download the ZIP from the [PANGAEA source record](https://doi.pangaea.de/10.1594/PANGAEA.897624), or use the direct archive link below. The adapter reads the ZIP in place.
+
+```powershell
+New-Item -ItemType Directory -Force data | Out-Null
+curl.exe --fail --location --output data/pangaea.zip https://store.pangaea.de/Publications/Tompkins-etal_2019/vectri_monthly_calibrated_timeseries_allyears_UGA_lneir_allLeads_repo.zip
+foreach ($horizon in 1, 4) {
+    python prepare_pangaea.py --archive data/pangaea.zip --horizon $horizon --out "data/pangaea-h$horizon"
+    python trainer.py forecast --input "data/pangaea-h$horizon/forecast.csv" --features prior_anomaly year_ago_anomaly --out "runs/pangaea-h$horizon"
+}
+```
+
+Use the virtual environment Python from the setup above if needed. Choose fresh output directories when repeating the commands. The adapter saves the archive hash, split date, and horizon in `source.json`. See [RESULTS.md](RESULTS.md) for the measured scores and the status of the other datasets.
+
+### Other experiments
+
 Prepare your own CSVs under `data/`. Keep a separate record of source version, preprocessing, data file hashes, cohort eligibility, and split assignments. The demo CSVs show the required layouts.
 
 | Mode | Required CSV columns | Input preparation |

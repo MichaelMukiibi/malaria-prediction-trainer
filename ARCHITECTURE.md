@@ -4,6 +4,7 @@
 | --- | --- |
 | `trainer.py` | CSV validation, CPU training and evaluation, and run output |
 | `demo.py` | Deterministic synthetic images and tables for smoke checks |
+| `prepare_pangaea.py` | Convert the published Uganda district anomaly ZIP into a dated forecast manifest |
 | `requirements*.txt` | CPU dependencies and the optional Isolation Forest dependency |
 | `data/` | Local data and CSV manifests |
 | `runs/` | Local metrics and model weights |

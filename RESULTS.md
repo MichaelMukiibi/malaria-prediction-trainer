@@ -24,4 +24,21 @@ Windows CPU, Python 3.14.4, NumPy 2.5.4, and Pillow 13.0.0. The generated images
 | Follow-up | Logistic accuracy 100%. Majority baseline accuracy 50%. |
 | Security | Isolation Forest (scikit-learn 1.8.0) flagged all 10 synthetic attacks and 1 of 10 benign events. |
 
-These numbers describe generated fixtures only. Record real-data and device results separately with the run configuration, source version, and split.
+## Real data: historical Uganda district case anomalies
+
+Windows CPU, Python 3.14.4 and NumPy 2.5.4. Source: [Tompkins et al. (2019), PANGAEA supplement 2](https://doi.pangaea.de/10.1594/PANGAEA.897624), CC BY 4.0. The archive contains published monthly case anomalies for 56 districts. Observations repeat across ensemble leads, so preparation selects a single copy and uses only the previous month's and year-ago anomalies relative to the forecast date. Training outcomes precede January 2009, and test forecast dates begin in January 2009. Rows that cross the cutoff are omitted.
+
+| Horizon | Train rows | Test rows | Ridge MAE | Ridge RMSE | Training mean MAE | Training mean RMSE |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 month | 2,016 | 1,288 | 0.383 | 0.516 | 0.976 | 1.152 |
+| 4 months | 1,848 | 1,120 | 0.719 | 0.905 | 0.991 | 1.169 |
+
+Errors are in the archive's published anomaly units. This is a retrospective baseline on the publisher's normalized series, which assumes prior observations were available at the forecast date. The archive provides no time-stamped releases or official outbreak labels, and the split evaluates later periods in districts seen during training.
+
+| Other source | Status |
+| --- | --- |
+| [Makerere/Lacuna smartphone microscopy](https://doi.org/10.7910/DVN/VEADSE) | Dataverse v5 metadata lists the Uganda thin-smear archive (about 730 MB). Before training, verify annotation coverage for both classes and obtain slide or participant group identifiers. |
+| [ClinEpiDB PRISM](https://clinepidb.org/ce/app/record/dataset/DS_0ad509829e) | Follow-up requires the participant and repeated-measure exports, a defined future outcome, and a split with disjoint groups. No cohort export was used in this run. |
+| [Uganda DHIS2](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-024-04838-w) | Operational outbreak evaluation requires an authorized weekly extract and prespecified outbreak thresholds. |
+
+Microscopy and cohort data address different outcomes. Security evaluation still requires benign application logs and labeled attack replays.
