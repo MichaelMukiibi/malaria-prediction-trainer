@@ -37,6 +37,7 @@ Persistence predicts the last observed anomaly for that district. Errors are in 
 
 | Other source | Status |
 | --- | --- |
+| [Makerere phone-camera thick smears](https://air.ug/downloads/plasmodium-phonecamera.zip) | Audited all 1,182 JPEG/XML pairs from Mulago. Of these, 948 had a Plasmodium annotation and 234 had no labeled objects. No identical JPEG bytes were found. The archive has no slide or patient mapping, so no grouped diagnostic accuracy is reported. |
 | [Makerere/Lacuna smartphone microscopy](https://doi.org/10.7910/DVN/VEADSE) | Dataverse v5 metadata lists the Uganda thin-smear archive (about 730 MB). Before training, verify annotation coverage for both classes and obtain slide or participant group identifiers. |
 | [ClinEpiDB PRISM](https://clinepidb.org/ce/app/record/dataset/DS_0ad509829e) | Follow-up requires the participant and repeated-measure exports, a defined future outcome, and a split with disjoint groups. No cohort export was used in this run. |
 | [Uganda DHIS2](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-024-04838-w) | Operational outbreak evaluation requires an authorized weekly extract and prespecified outbreak thresholds. |

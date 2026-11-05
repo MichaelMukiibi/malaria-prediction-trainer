@@ -43,6 +43,21 @@ Use the virtual environment Python from the setup above if needed. Choose fresh 
 
 ### Other experiments
 
+The [Makerere phone-camera archive](https://air.ug/downloads/plasmodium-phonecamera.zip) can be audited locally:
+
+```powershell
+python prepare_makerere.py --archive data/phonecamera.zip
+```
+
+When you have the verified slide or patient mapping, prepare the dataset and run diagnostics:
+
+```powershell
+python prepare_makerere.py --archive data/phonecamera.zip --groups data/makerere-groups.csv --out data/makerere
+python trainer.py diagnostics --input data/makerere/images.csv --out runs/makerere
+```
+
+The grouping CSV needs `image,group,split,client`, with the JPG basename in `image`. Assign entire groups to a single split and client. The phone-camera archive comes from one hospital, so any subdivision into training clients is a simulation. If using a different Makerere release, check its layout and labels separately.
+
 Prepare your own CSVs under `data/`. Keep a separate record of source version, preprocessing, data file hashes, cohort eligibility, and split assignments. The demo CSVs show the required layouts.
 
 | Mode | Required CSV columns | Input preparation |
