@@ -77,6 +77,8 @@ def update(weights, x, y, steps, rate):
         error = probability - y
         weights[:-1] -= rate * (x.T @ error / len(y) + 0.01 * weights[:-1])
         weights[-1] -= rate * error.mean()
+        if not np.isfinite(weights).all():
+            raise ValueError("Training diverged. Check feature ranges and lower --rate.")
     return weights
 
 
@@ -186,6 +188,8 @@ def tabular(args, rows):
     spread = x.std(axis=0)
     spread[spread == 0] = 1
     x, held_out = (x - center) / spread, (held_out - center) / spread
+    if not np.isfinite(x).all() or not np.isfinite(held_out).all():
+        raise ValueError("Feature standardization overflowed. Check feature ranges.")
     metrics = dict(train_rows=len(train), test_rows=len(test))
     if args.mode == "followup":
         y, truth = labels(train, "target"), labels(test, "target")
